@@ -40,6 +40,11 @@ RUN export CONTAINERPILOT_CHECKSUM=c1bcd137fadd26ca2998eec192d04c08f62beb1f \
     && tar zxf /tmp/${archive} -C /usr/local/bin \
     && rm /tmp/${archive}
 
+# Add Prometheus exporter
+RUN curl --fail -sL https://github.com/prometheus/consul_exporter/releases/download/v0.3.0/consul_exporter-0.3.0.linux-amd64.tar.gz |\
+    tar -xzO -f - consul_exporter-0.3.0.linux-amd64/consul_exporter > /usr/local/bin/consul_exporter &&\
+    chmod +x /usr/local/bin/consul_exporter
+
 # configuration files and bootstrap scripts
 COPY etc/containerpilot.json etc/
 COPY etc/consul.json etc/consul/
@@ -57,3 +62,6 @@ EXPOSE 8300 8301 8301/udp 8302 8302/udp 8400 8500 53 53/udp
 
 #ENV GOMAXPROCS 2
 ENV SHELL /bin/bash
+
+HEALTHCHECK --interval=60s --timeout=10s --retries=3 CMD curl -f http://127.0.0.1:8500/ || exit 1
+
