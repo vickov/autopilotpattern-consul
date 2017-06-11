@@ -65,3 +65,12 @@ ENV SHELL /bin/bash
 
 HEALTHCHECK --interval=60s --timeout=10s --retries=3 CMD curl -f http://127.0.0.1:8500/ || exit 1
 
+LABEL org.label-schema.build-date=$BUILD_DATE \
+      org.label-schema.license="MPL-2.0" \
+      org.label-schema.vendor="https://bitbucket.org/double16" \
+      org.label-schema.name="Consul with the Autopilot Pattern and Prometheus Monitoring" \
+      org.label-schema.url="https://bitbucket.org/double16/autopilotpattern-consul" \
+      org.label-schema.docker.dockerfile="Dockerfile" \
+      org.label-schema.vcs-ref=$SOURCE_REF \
+      org.label-schema.vcs-type='git' \
+      org.label-schema.vcs-url="https://bitbucket.org/double16/autopilotpattern-consul.git"
