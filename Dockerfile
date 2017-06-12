@@ -29,10 +29,10 @@ RUN export CONSUL_UI_CHECKSUM=c9d2a6e1d1bb6243e5fd23338d92f5c71cdf0a4077f7fcc95f
     && rm /tmp/${archive}
 
 # Add Containerpilot and set its configuration
-ENV CONTAINERPILOT_VERSION 2.6.0
+ENV CONTAINERPILOT_VERSION 2.7.3
 ENV CONTAINERPILOT file:///etc/containerpilot.json
 
-RUN export CONTAINERPILOT_CHECKSUM=c1bcd137fadd26ca2998eec192d04c08f62beb1f \
+RUN export CONTAINERPILOT_CHECKSUM=2511fdfed9c6826481a9048e8d34158e1d7728bf \
     && export archive=containerpilot-${CONTAINERPILOT_VERSION}.tar.gz \
     && curl -Lso /tmp/${archive} \
          "https://github.com/joyent/containerpilot/releases/download/${CONTAINERPILOT_VERSION}/${archive}" \
@@ -62,6 +62,8 @@ EXPOSE 8300 8301 8301/udp 8302 8302/udp 8400 8500 53 53/udp
 
 #ENV GOMAXPROCS 2
 ENV SHELL /bin/bash
+
+CMD /usr/local/bin/containerpilot /bin/consul agent -server -bootstrap-expect ${CONSUL_BOOTSTRAP_EXPECT:-3} -config-dir=/etc/consul -ui-dir=/ui
 
 HEALTHCHECK --interval=60s --timeout=10s --retries=3 CMD curl -f http://127.0.0.1:8500/ || exit 1
 
