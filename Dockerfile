@@ -45,6 +45,8 @@ RUN curl --fail -sL https://github.com/prometheus/consul_exporter/releases/downl
     tar -xzO -f - consul_exporter-0.3.0.linux-amd64/consul_exporter > /usr/local/bin/consul_exporter &&\
     chmod +x /usr/local/bin/consul_exporter
 
+COPY node_exporter/node_exporter /usr/local/bin/node_exporter
+
 # configuration files and bootstrap scripts
 COPY etc/containerpilot.json etc/
 COPY etc/consul.json etc/consul/

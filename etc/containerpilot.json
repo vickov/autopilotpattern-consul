@@ -16,9 +16,20 @@
       "health": "/usr/bin/curl --fail -s -o /dev/null http://localhost:9090/metrics",
       "poll": 5,
       "ttl": 15
+    },
+    {
+      "name": "node_exporter",
+      "port": 9100,
+      "health": "/usr/bin/curl --fail -s -o /dev/null http://localhost:9100/metrics",
+      "poll": 5,
+      "ttl": 15
     }
   ],
   "coprocesses": [
+    {
+      "command": ["/usr/local/bin/node_exporter","-web.listen-address=:9100"],
+      "restarts": "unlimited"
+    },
     {
       "command": ["/usr/local/bin/consul_exporter","-consul.server=127.0.0.1:8500","-web.listen-address=:9090"],
       "restarts": "unlimited"
