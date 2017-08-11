@@ -1,4 +1,4 @@
-FROM alpine:3.5
+FROM alpine:3.6
 
 # Alpine packages
 RUN apk --no-cache \
@@ -8,8 +8,8 @@ RUN apk --no-cache \
         ca-certificates
 
 # The Consul binary
-ENV CONSUL_VERSION=0.7.3
-RUN export CONSUL_CHECKSUM=901a3796b645c3ce3853d5160080217a10ad8d9bd8356d0b73fcd6bc078b7f82 \
+ENV CONSUL_VERSION=0.9.2
+RUN export CONSUL_CHECKSUM=0a2921fc7ca7e4702ef659996476310879e50aeeecb5a205adfdbe7bd8524013 \
     && export archive=consul_${CONSUL_VERSION}_linux_amd64.zip \
     && curl -Lso /tmp/${archive} https://releases.hashicorp.com/consul/${CONSUL_VERSION}/${archive} \
     && echo "${CONSUL_CHECKSUM}  /tmp/${archive}" | sha256sum -c \
@@ -18,26 +18,23 @@ RUN export CONSUL_CHECKSUM=901a3796b645c3ce3853d5160080217a10ad8d9bd8356d0b73fcd
     && chmod +x /bin/consul \
     && rm /tmp/${archive}
 
-# The Consul web UI
-RUN export CONSUL_UI_CHECKSUM=52b1bb09b38eec522f6ecc0b9bf686745bbdc9d845be02bd37bf4b835b0a736e \
-    && export archive=consul_${CONSUL_VERSION}_web_ui.zip \
-    && curl -Lso /tmp/${archive} https://releases.hashicorp.com/consul/${CONSUL_VERSION}/${archive} \
-    && echo "${CONSUL_UI_CHECKSUM}  /tmp/${archive}" | sha256sum -c \
-    && mkdir /ui \
-    && cd /ui \
-    && unzip /tmp/${archive} \
-    && rm /tmp/${archive}
-
 # Add Containerpilot and set its configuration
-ENV CONTAINERPILOT_VER 3.0.0-RC1
+ENV CONTAINERPILOT_VER 3.3.4
 ENV CONTAINERPILOT /etc/containerpilot.json5
 
-RUN export CONTAINERPILOT_CHECKSUM=f67929d1c8567d31772085fc252338091a5f795c \
+RUN export CONTAINERPILOT_CHECKSUM=806f28a25a06acdbcfa8940c8968d5f8e20a2c4f \
     && curl -Lso /tmp/containerpilot.tar.gz \
          "https://github.com/joyent/containerpilot/releases/download/${CONTAINERPILOT_VER}/containerpilot-${CONTAINERPILOT_VER}.tar.gz" \
     && echo "${CONTAINERPILOT_CHECKSUM}  /tmp/containerpilot.tar.gz" | sha1sum -c \
     && tar zxf /tmp/containerpilot.tar.gz -C /usr/local/bin \
     && rm /tmp/containerpilot.tar.gz
+
+# Add Prometheus exporter
+RUN curl --fail -sL https://github.com/prometheus/consul_exporter/releases/download/v0.3.0/consul_exporter-0.3.0.linux-amd64.tar.gz |\
+    tar -xzO -f - consul_exporter-0.3.0.linux-amd64/consul_exporter > /usr/local/bin/consul_exporter &&\
+    chmod +x /usr/local/bin/consul_exporter
+
+COPY node_exporter/node_exporter /usr/local/bin/node_exporter
 
 # configuration files and bootstrap scripts
 COPY etc/containerpilot.json5 etc/
@@ -56,3 +53,17 @@ EXPOSE 8300 8301 8301/udp 8302 8302/udp 8400 8500 53 53/udp
 
 #ENV GOMAXPROCS 2
 ENV SHELL /bin/bash
+
+CMD ["/usr/local/bin/containerpilot"]
+
+HEALTHCHECK --interval=60s --timeout=10s --retries=3 CMD curl -f http://127.0.0.1:8500/ || exit 1
+
+LABEL org.label-schema.build-date=$BUILD_DATE \
+      org.label-schema.license="MPL-2.0" \
+      org.label-schema.vendor="https://bitbucket.org/double16" \
+      org.label-schema.name="Consul ${CONSUL_VERSION} with the Autopilot Pattern and Prometheus Monitoring" \
+      org.label-schema.url="https://bitbucket.org/double16/autopilotpattern-consul" \
+      org.label-schema.docker.dockerfile="Dockerfile" \
+      org.label-schema.vcs-ref=$SOURCE_REF \
+      org.label-schema.vcs-type='git' \
+      org.label-schema.vcs-url="https://bitbucket.org/double16/autopilotpattern-consul.git"

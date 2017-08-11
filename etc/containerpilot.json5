@@ -14,8 +14,8 @@
       {{ else }}exec: [
         "/bin/consul", "agent", "-server",
         "-bootstrap-expect", "3",
-        "-config-dir=/etc/consul",
-        "-ui-dir", "/ui"],{{ end }}
+        "-config-dir=/etc/consul"],
+      {{ end }}
       when: {
         source: "preStart",
         once: "exitSuccess"
@@ -27,12 +27,37 @@
       }
     },
     {
+        name: "containerpilot",
+        port: 9090,
+        exec: ["/usr/local/bin/consul_exporter","-consul.server=127.0.0.1:8500","-web.listen-address=:9090"],
+        when: {
+          source: "consul",
+          once: "healthy",
+        },
+        health: {
+          exec: ["/usr/bin/curl", "--fail", "-s", "-o", "/dev/null", "http://localhost:9090/metrics"],
+          interval: 5,
+          ttl: 15,
+        },
+    },
+    {
+        name: "node-exporter",
+        port: 9100,
+        exec: ["/usr/local/bin/node_exporter","-web.listen-address=:9100"],
+        health: {
+          exec: ["/usr/bin/curl", "--fail", "-s", "-o", "/dev/null", "http://localhost:9100/metrics"],
+          interval: 5,
+          ttl: 15,
+        },
+    },
+    {
       name: "preStop",
       exec: ["consul", "leave"],
       when: {
         source: "preStop",
         once: "stopping"
       }
-    }
+    },
   ]
 }
+
