@@ -13,6 +13,7 @@
         "-config-dir=/etc/consul"],
       {{ else }}exec: [
         "/bin/consul", "agent", "-server",
+        "-raft-protocol=3",
         "-bootstrap-expect", "3",
         "-config-dir=/etc/consul"],
       {{ end }}
