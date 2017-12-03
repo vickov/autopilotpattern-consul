@@ -8,14 +8,6 @@ preStart() {
     sed -i "s/CONTAINERPILOT_CONSUL_IP/${CONTAINERPILOT_CONSUL_IP}/" /etc/consul/consul.json
     _log "Updating consul hostname"
     sed -i "s/HOSTNAME/${HOSTNAME}/" /etc/consul/consul.json
-
-    nodes=$(find /data/ -name node-id 2>/dev/null | wc -l)
-    if [ $nodes == 0 ]; then
-      _log "Bootstraping Consul, if this is not what you expected the data volume may have been lost"
-    else
-      _log "Using existing cluster, if this is not what you expected the data volume may need to be re-created"
-      sed -i 's/"bootstrap_expect".*,//' /etc/consul/consul.json
-    fi
 }
 
 # Check if a member of a raft. If consul info returns an error we'll
@@ -26,7 +18,7 @@ preStart() {
 # If we end up joining ourselves we just retry on the next health check
 # until we've got the whole cluster together.
 health() {
-    if [ $(consul info | awk '/num_peers/{print$3}') == 0 ]; then
+    if [ -z "${CONSUL_DEV}" -a $(consul info | awk '/num_peers/{print$3}') == 0 ]; then
         _log "No peers in raft"
         consul join ${CONSUL}
     fi

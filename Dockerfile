@@ -8,8 +8,8 @@ RUN apk --no-cache \
         ca-certificates
 
 # The Consul binary
-ENV CONSUL_VERSION=1.0.0
-RUN export CONSUL_CHECKSUM=585782e1fb25a2096e1776e2da206866b1d9e1f10b71317e682e03125f22f479 \
+ENV CONSUL_VERSION=1.0.1
+RUN export CONSUL_CHECKSUM=eac5755a1d19e4b93f6ce30caaf7b3bd8add4557b143890b1c07f5614a667a68 \
     && export archive=consul_${CONSUL_VERSION}_linux_amd64.zip \
     && curl -Lso /tmp/${archive} https://releases.hashicorp.com/consul/${CONSUL_VERSION}/${archive} \
     && echo "${CONSUL_CHECKSUM}  /tmp/${archive}" | sha256sum -c \
