@@ -2,8 +2,8 @@
 
 [Consul](http://www.consul.io/) in Docker, designed to be self-operating according to the autopilot pattern. This application demonstrates support for configuring the Consul raft so it can be used as a highly-available discovery catalog for other applications using the Autopilot pattern.
 
-[![DockerPulls](https://img.shields.io/docker/pulls/autopilotpattern/consul.svg)](https://registry.hub.docker.com/u/autopilotpattern/consul/)
-[![DockerStars](https://img.shields.io/docker/stars/autopilotpattern/consul.svg)](https://registry.hub.docker.com/u/autopilotpattern/consul/)
+[![DockerPulls](https://img.shields.io/docker/pulls/pdouble16/autopilotpattern-consul.svg)](https://registry.hub.docker.com/u/pdouble16/autopilotpattern-consul/)
+[![DockerStars](https://img.shields.io/docker/stars/pdouble16/autopilotpattern-consul.svg)](https://registry.hub.docker.com/u/pdouble16/autopilotpattern-consul/)
 
 ## Using Consul with ContainerPilot
 
