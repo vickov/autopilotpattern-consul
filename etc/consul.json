@@ -1,10 +1,17 @@
 {
-  "bind_addr": "CONTAINERPILOT_CONSUL_IP",
-  "data_dir": "/data",
+  "data_dir": "/data/HOSTNAME",
+  "server": true,
   "client_addr": "0.0.0.0",
-  "ports": {
-	  "dns": 53
+  "addresses": {
+    "dns": "0.0.0.0",
+    "http": "0.0.0.0"
   },
-  "recursor": "8.8.8.8",
-  "disable_update_check": true
+  "ports": {
+    "dns": 53,
+    "http": 8500
+  },
+  "recursors": [ "8.8.8.8", "8.8.4.4" ],
+  "raft_protocol": 3,
+  "disable_update_check": true,
+  "disable_host_node_id": true
 }

@@ -9,7 +9,8 @@
       name: "consul",
       port: 8500,
       {{ if .CONSUL_DEV }}exec: [
-        "/bin/consul", "agent", "-dev",
+        "/bin/consul", "agent", "-server",
+        "-bootstrap-expect", "1",
         "-config-dir=/etc/consul"],
       {{ else }}exec: [
         "/bin/consul", "agent", "-server",
@@ -29,7 +30,7 @@
     {
         name: "containerpilot",
         port: 9090,
-        exec: ["/usr/local/bin/consul_exporter","-consul.server=127.0.0.1:8500","-web.listen-address=:9090"],
+        exec: ["/usr/local/bin/consul_exporter","-consul.server=127.0.0.1:8500","-web.listen-address=:9090","-consul.timeout=500ms"],
         when: {
           source: "consul",
           once: "healthy",
@@ -54,7 +55,7 @@
       name: "preStop",
       exec: ["consul", "leave"],
       when: {
-        source: "preStop",
+        source: "consul",
         once: "stopping"
       }
     },

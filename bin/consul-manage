@@ -4,8 +4,10 @@ set -eo pipefail
 # Update the -advertise address based on the interface that ContainerPilot
 # has been told to listen on.
 preStart() {
-    _log "Updating consul advertise address"
+    _log "Updating consul advertise address and hostname"
     sed -i "s/CONTAINERPILOT_CONSUL_IP/${CONTAINERPILOT_CONSUL_IP}/" /etc/consul/consul.json
+    _log "Updating consul hostname"
+    sed -i "s/HOSTNAME/${HOSTNAME}/" /etc/consul/consul.json
 }
 
 # Check if a member of a raft. If consul info returns an error we'll
@@ -16,7 +18,7 @@ preStart() {
 # If we end up joining ourselves we just retry on the next health check
 # until we've got the whole cluster together.
 health() {
-    if [ $(consul info | awk '/num_peers/{print$3}') == 0 ]; then
+    if [ -z "${CONSUL_DEV}" -a $(consul info | awk '/num_peers/{print$3}') == 0 ]; then
         _log "No peers in raft"
         consul join ${CONSUL}
     fi
