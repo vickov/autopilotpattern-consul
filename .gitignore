@@ -1,3 +1,4 @@
 _env
 node_modules/
 node_exporter/
+.vscode/

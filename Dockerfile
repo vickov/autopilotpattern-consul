@@ -8,8 +8,8 @@ RUN apk --no-cache \
         ca-certificates
 
 # The Consul binary
-ENV CONSUL_VERSION=1.0.1
-RUN export CONSUL_CHECKSUM=eac5755a1d19e4b93f6ce30caaf7b3bd8add4557b143890b1c07f5614a667a68 \
+ENV CONSUL_VERSION=1.0.2
+RUN export CONSUL_CHECKSUM=418329f0f4fc3f18ef08674537b576e57df3f3026f258794b4b4b611beae6c9b \
     && export archive=consul_${CONSUL_VERSION}_linux_amd64.zip \
     && curl -Lso /tmp/${archive} https://releases.hashicorp.com/consul/${CONSUL_VERSION}/${archive} \
     && echo "${CONSUL_CHECKSUM}  /tmp/${archive}" | sha256sum -c \
@@ -19,10 +19,10 @@ RUN export CONSUL_CHECKSUM=eac5755a1d19e4b93f6ce30caaf7b3bd8add4557b143890b1c07f
     && rm /tmp/${archive}
 
 # Add Containerpilot and set its configuration
-ENV CONTAINERPILOT_VER 3.5.1
+ENV CONTAINERPILOT_VER 3.6.1
 ENV CONTAINERPILOT /etc/containerpilot.json5
 
-RUN export CONTAINERPILOT_CHECKSUM=7ee8e59588b6b593325930b0dc18d01f666031d7 \
+RUN export CONTAINERPILOT_CHECKSUM=57857530356708e9e8672d133b3126511fb785ab \
     && curl -Lso /tmp/containerpilot.tar.gz \
          "https://github.com/joyent/containerpilot/releases/download/${CONTAINERPILOT_VER}/containerpilot-${CONTAINERPILOT_VER}.tar.gz" \
     && echo "${CONTAINERPILOT_CHECKSUM}  /tmp/containerpilot.tar.gz" | sha1sum -c \
