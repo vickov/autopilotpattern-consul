@@ -38,7 +38,7 @@ COPY node_exporter/node_exporter /usr/local/bin/node_exporter
 
 # configuration files and bootstrap scripts
 COPY etc/containerpilot.json5 etc/
-COPY etc/consul.json etc/consul/
+COPY etc/consul.hcl etc/consul/
 COPY bin/* /usr/local/bin/
 
 # Put Consul data on a separate volume to avoid filesystem performance issues

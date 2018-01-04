@@ -13,10 +13,11 @@
         "-bootstrap-expect", "1",
         "-config-dir=/etc/consul"],
       {{ else }}exec: [
-        "/bin/consul", "agent", "-server",
+        "/bin/consul", "agent",
+        "-server",
         "-bootstrap-expect", "3",
-        "-config-dir=/etc/consul"],
-      {{ end }}
+        "-config-dir=/etc/consul",
+        "-ui"],{{ end }}
       when: {
         source: "preStart",
         once: "exitSuccess"

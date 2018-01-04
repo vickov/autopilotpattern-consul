@@ -1,22 +1,38 @@
 #!/bin/bash
 set -eo pipefail
 
-# Update the -advertise address based on the interface that ContainerPilot
-# has been told to listen on.
+#
+# Update the -advertise address based on the interface that ContainerPilot has
+# been told to listen on.
+#
 preStart() {
-    _log "Updating consul advertise address and hostname"
-    sed -i "s/CONTAINERPILOT_CONSUL_IP/${CONTAINERPILOT_CONSUL_IP}/" /etc/consul/consul.json
-    _log "Updating consul hostname"
-    sed -i "s/HOSTNAME/${HOSTNAME}/" /etc/consul/consul.json
+    _log "Updating consul advertise address"
+    sed -i "s/CONTAINERPILOT_CONSUL_IP/${CONTAINERPILOT_CONSUL_IP}/" /etc/consul/consul.hcl
+
+    if [ -n "$CONSUL_DATACENTER_NAME" ]; then
+        _log "Updating consul datacenter name (specified: '${CONSUL_DATACENTER_NAME}' )"
+        sed -i "s/CONSUL_DATACENTER_NAME/${CONSUL_DATACENTER_NAME}/" /etc/consul/consul.hcl
+    elif [ -f "/native/usr/sbin/mdata-get" ]; then
+        DETECTED_DATACENTER_NAME=$(/native/usr/sbin/mdata-get sdc:datacenter_name)
+        _log "Updating consul datacenter name (detected: '${DETECTED_DATACENTER_NAME}')"
+        sed -i "s/CONSUL_DATACENTER_NAME/${DETECTED_DATACENTER_NAME}/" /etc/consul/consul.hcl
+    else
+        _log "Updating consul datacenter name (default: 'dc1')"
+        sed -i "s/CONSUL_DATACENTER_NAME/dc1/" /etc/consul/consul.hcl
+    fi
 }
 
-# Check if a member of a raft. If consul info returns an error we'll
-# pipefail and exit for a failed health check.
-# If we have no peers then try to join the raft via the CNS svc record.
-# Once a node is connected to at least one other peer it'll get the rest
-# of the raft via the Consul LAN gossip.
-# If we end up joining ourselves we just retry on the next health check
-# until we've got the whole cluster together.
+#
+# Check if a member of a raft. If consul info returns an error we'll pipefail
+# and exit for a failed health check.
+#
+# If we have no peers then try to join the raft via the CNS svc record.  Once a
+# node is connected to at least one other peer it'll get the rest of the raft
+# via the Consul LAN gossip.
+#
+# If we end up joining ourselves we just retry on the next health check until
+# we've got the whole cluster together.
+#
 health() {
     if [ -z "${CONSUL_DEV}" -a $(consul info | awk '/num_peers/{print$3}') == 0 ]; then
         _log "No peers in raft"
