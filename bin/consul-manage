@@ -17,7 +17,7 @@ preStart() {
         _log "Updating consul datacenter name (detected from Triton: '${DETECTED_DATACENTER_NAME}')"
         sed -i "s/CONSUL_DATACENTER_NAME/${DETECTED_DATACENTER_NAME}/" /etc/consul/consul.hcl
     elif curl --connect-timeout 5 -s -o /dev/null --fail http://169.254.169.254/latest/meta-data/placement/availability-zone; then
-        DETECTED_DATACENTER_NAME="$(curl http://169.254.169.254/latest/meta-data/placement/availability-zone)"
+        DETECTED_DATACENTER_NAME="$(curl -s http://169.254.169.254/latest/meta-data/placement/availability-zone)"
         _log "Updating consul datacenter name (detected from AWS: '${DETECTED_DATACENTER_NAME}')"
         sed -i "s/CONSUL_DATACENTER_NAME/${DETECTED_DATACENTER_NAME}/" /etc/consul/consul.hcl
     else
