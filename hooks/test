@@ -1,0 +1,53 @@
+#!/bin/bash -xe
+
+. ./hooks/env
+
+JQ="docker run --rm -i articulate/jq"
+
+function retry {
+  local retry_max=$1
+  shift
+
+  local count=$retry_max
+  while [ $count -gt 0 ]; do
+    "$@" && break
+    count=$(($count - 1))
+    sleep 3
+  done
+
+  [ $count -eq 0 ] && {
+    echo "Retry failed [$retry_max]: $@" >&2
+    return 1
+  }
+  return 0
+}
+
+function finish {
+  docker-compose -p consultest -f hooks/docker-compose.yml logs
+  docker-compose -p consultest -f hooks/docker-compose.yml down
+}
+trap finish EXIT
+
+function passing_service {
+  docker run --rm --network container:consultest_consul_1 appropriate/curl -s http://localhost:8500/v1/health/state/passing | grep -q "ServiceName.*$1"
+}
+
+export IMAGE_NAME
+docker-compose -p consultest -f hooks/docker-compose.yml up -d --scale consul=3
+while docker-compose -p consultest -f hooks/docker-compose.yml ps -q | xargs docker inspect | ${JQ} -r .[].State.Health.Status | grep -q starting; do
+  echo "Waiting for services to start ..."
+  sleep 15s
+done
+
+retry 30 docker exec consultest_consul_1 curl -s --fail http://localhost:8500/v1/health/state/passing
+retry 30 docker exec consultest_consul_2 curl -s --fail http://localhost:8500/v1/health/state/passing
+retry 30 docker exec consultest_consul_3 curl -s --fail http://localhost:8500/v1/health/state/passing
+
+retry 15 passing_service consul
+
+retry 5 docker run --rm --network container:consultest_consul_1 appropriate/curl -s -o /dev/null http://localhost:9090/metrics
+retry 5 passing_service containerpilot
+
+retry 5 docker run --rm --network container:consultest_consul_1 appropriate/curl -s -o /dev/null http://localhost:9100/metrics
+retry 5 passing_service node-exporter
+

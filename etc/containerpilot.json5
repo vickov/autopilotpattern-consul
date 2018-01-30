@@ -45,7 +45,7 @@
     {
         name: "node-exporter",
         port: 9100,
-        exec: ["/usr/local/bin/node_exporter","-web.listen-address=:9100"],
+        exec: ["/usr/local/bin/node_exporter","--web.listen-address=:9100"],
         health: {
           exec: ["/usr/bin/curl", "--fail", "-s", "-o", "/dev/null", "http://localhost:9100/metrics"],
           interval: 5,

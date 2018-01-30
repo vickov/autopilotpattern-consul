@@ -1,15 +1,16 @@
-FROM alpine:3.6
+FROM alpine:3.7
 
 # Alpine packages
 RUN apk --no-cache \
     add \
         curl \
         bash \
-        ca-certificates
+        ca-certificates \
+        jq
 
 # The Consul binary
-ENV CONSUL_VERSION=1.0.2
-RUN export CONSUL_CHECKSUM=418329f0f4fc3f18ef08674537b576e57df3f3026f258794b4b4b611beae6c9b \
+ENV CONSUL_VERSION=1.0.3
+RUN export CONSUL_CHECKSUM=4782e4662de8effe49e97c50b1a1233c03c0026881f6c004144cc3b73f446ec5 \
     && export archive=consul_${CONSUL_VERSION}_linux_amd64.zip \
     && curl -Lso /tmp/${archive} https://releases.hashicorp.com/consul/${CONSUL_VERSION}/${archive} \
     && echo "${CONSUL_CHECKSUM}  /tmp/${archive}" | sha256sum -c \
@@ -19,10 +20,9 @@ RUN export CONSUL_CHECKSUM=418329f0f4fc3f18ef08674537b576e57df3f3026f258794b4b4b
     && rm /tmp/${archive}
 
 # Add Containerpilot and set its configuration
-ENV CONTAINERPILOT_VER 3.6.1
-ENV CONTAINERPILOT /etc/containerpilot.json5
+ENV CONTAINERPILOT_VER="3.6.2" CONTAINERPILOT="/etc/containerpilot.json5"
 
-RUN export CONTAINERPILOT_CHECKSUM=57857530356708e9e8672d133b3126511fb785ab \
+RUN export CONTAINERPILOT_CHECKSUM=b799efda15b26d3bbf8fd745143a9f4c4df74da9 \
     && curl -Lso /tmp/containerpilot.tar.gz \
          "https://github.com/joyent/containerpilot/releases/download/${CONTAINERPILOT_VER}/containerpilot-${CONTAINERPILOT_VER}.tar.gz" \
     && echo "${CONTAINERPILOT_CHECKSUM}  /tmp/containerpilot.tar.gz" | sha1sum -c \
@@ -34,7 +34,9 @@ RUN curl --fail -sL https://github.com/prometheus/consul_exporter/releases/downl
     tar -xzO -f - consul_exporter-0.3.0.linux-amd64/consul_exporter > /usr/local/bin/consul_exporter &&\
     chmod +x /usr/local/bin/consul_exporter
 
-COPY node_exporter/node_exporter /usr/local/bin/node_exporter
+RUN curl --fail -sL https://github.com/prometheus/node_exporter/releases/download/v0.15.2/node_exporter-0.15.2.linux-amd64.tar.gz |\
+    tar -xzO -f - node_exporter-0.15.2.linux-amd64/node_exporter > /usr/local/bin/node_exporter &&\
+    chmod +x /usr/local/bin/node_exporter
 
 # configuration files and bootstrap scripts
 COPY etc/containerpilot.json5 etc/

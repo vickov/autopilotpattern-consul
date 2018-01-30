@@ -2,11 +2,4 @@
 
 . ./hooks/env
 
-# We need to build node_exporter for alpine
-if [ ! -d "node_exporter" ]; then
-	git clone https://github.com/prometheus/node_exporter.git
-	cd node_exporter; git checkout tags/v0.14.0; cd -
-fi
-docker run --rm -v "$PWD/node_exporter":/go/src/github.com/prometheus/node_exporter -w /go/src/github.com/prometheus/node_exporter golang:1.8.5-alpine3.6 go build -v
-
 docker build --build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` --build-arg "SOURCE_COMMIT=$GIT_SHA1" --build-arg "DOCKERFILE_PATH=$DOCKERFILE_PATH" --build-arg "SOURCE_TYPE=$SOURCE_TYPE" -t $IMAGE_NAME $DOCKERFILE_PATH

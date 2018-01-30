@@ -20,6 +20,10 @@ preStart() {
         DETECTED_DATACENTER_NAME="$(curl -s http://169.254.169.254/latest/meta-data/placement/availability-zone)"
         _log "Updating consul datacenter name (detected from AWS: '${DETECTED_DATACENTER_NAME}')"
         sed -i "s/CONSUL_DATACENTER_NAME/${DETECTED_DATACENTER_NAME}/" /etc/consul/consul.hcl
+    elif curl --connect-timeout 10 -s -o /dev/null --fail -H Metadata:true 'http://169.254.169.254/metadata/instance?api-version=2017-04-02'; then
+        DETECTED_DATACENTER_NAME="$(curl -s -H Metadata:true 'http://169.254.169.254/metadata/instance?api-version=2017-04-02' | jq -r .compute.location)"
+        _log "Updating consul datacenter name (detected from Azure: '${DETECTED_DATACENTER_NAME}')"
+        sed -i "s/CONSUL_DATACENTER_NAME/${DETECTED_DATACENTER_NAME}/" /etc/consul/consul.hcl
     else
         _log "Updating consul datacenter name (default: 'dc1')"
         sed -i "s/CONSUL_DATACENTER_NAME/dc1/" /etc/consul/consul.hcl
