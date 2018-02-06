@@ -6,6 +6,8 @@ set -eo pipefail
 # been told to listen on.
 #
 preStart() {
+    cp -f /etc/consul/consul.hcl.orig /etc/consul/consul.hcl
+
     _log "Updating consul advertise address"
     sed -i "s/CONTAINERPILOT_CONSUL_IP/${CONTAINERPILOT_CONSUL_IP}/" /etc/consul/consul.hcl
 

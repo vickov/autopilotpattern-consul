@@ -39,8 +39,8 @@ RUN curl --fail -sL https://github.com/prometheus/node_exporter/releases/downloa
     chmod +x /usr/local/bin/node_exporter
 
 # configuration files and bootstrap scripts
-COPY etc/containerpilot.json5 etc/
-COPY etc/consul.hcl etc/consul/
+COPY etc/containerpilot.json5 /etc/
+COPY etc/consul.hcl /etc/consul/consul.hcl.orig
 COPY bin/* /usr/local/bin/
 
 # Put Consul data on a separate volume to avoid filesystem performance issues
