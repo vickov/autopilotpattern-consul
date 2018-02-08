@@ -1,6 +1,6 @@
 bind_addr = "CONTAINERPILOT_CONSUL_IP"
 datacenter = "CONSUL_DATACENTER_NAME"
-data_dir = "/data/CONTAINERPILOT_CONSUL_IP"
+data_dir = "/data/CONSUL_NODE_ID"
 client_addr = "0.0.0.0"
 addresses {
   dns = "0.0.0.0"

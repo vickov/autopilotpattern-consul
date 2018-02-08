@@ -6,10 +6,18 @@ set -eo pipefail
 # been told to listen on.
 #
 preStart() {
+    [ -s /etc/consul/node-id ] || cat /proc/sys/kernel/random/uuid > /etc/consul/node-id
     cp -f /etc/consul/consul.hcl.orig /etc/consul/consul.hcl
 
-    _log "Updating consul advertise address"
+    _log "Updating consul advertise address to ${CONTAINERPILOT_CONSUL_IP}"
     sed -i "s/CONTAINERPILOT_CONSUL_IP/${CONTAINERPILOT_CONSUL_IP}/" /etc/consul/consul.hcl
+
+    CONSUL_NODE_ID="$(cat /etc/consul/node-id)"
+    if [ -n "${CONSUL_NODE_ID}" ]; then
+        _log "Updating consul node-id to ${CONSUL_NODE_ID}"
+        sed -i "s/CONSUL_NODE_ID/${CONSUL_NODE_ID}/" /etc/consul/consul.hcl
+        [ -s "/data/${CONSUL_NODE_ID}/node-id" ] || mkdir -p "/data/${CONSUL_NODE_ID}" && echo "${CONSUL_NODE_ID}" > "/data/${CONSUL_NODE_ID}/node-id"
+    fi
 
     if [ -n "$CONSUL_DATACENTER_NAME" ]; then
         _log "Updating consul datacenter name (specified: '${CONSUL_DATACENTER_NAME}' )"

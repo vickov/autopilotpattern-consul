@@ -1,42 +1,34 @@
 FROM alpine:3.7
 
-# Alpine packages
-RUN apk --no-cache \
-    add \
-        curl \
-        bash \
-        ca-certificates \
-        jq
+ENV CONSUL_VERSION="1.0.5" \
+    CONTAINERPILOT_VER="3.6.2" CONTAINERPILOT="/etc/containerpilot.json5" \
+    SHELL="/bin/bash"
 
+# Alpine packages
+RUN apk --no-cache add curl bash ca-certificates jq \
 # The Consul binary
-ENV CONSUL_VERSION=1.0.3
-RUN export CONSUL_CHECKSUM=4782e4662de8effe49e97c50b1a1233c03c0026881f6c004144cc3b73f446ec5 \
+    && export CONSUL_CHECKSUM=0c6db793e49566f839249c5fb58a2262fb79d16a01bc5d41d78c89982760d71f \
     && export archive=consul_${CONSUL_VERSION}_linux_amd64.zip \
     && curl -Lso /tmp/${archive} https://releases.hashicorp.com/consul/${CONSUL_VERSION}/${archive} \
     && echo "${CONSUL_CHECKSUM}  /tmp/${archive}" | sha256sum -c \
     && cd /bin \
     && unzip /tmp/${archive} \
     && chmod +x /bin/consul \
-    && rm /tmp/${archive}
-
+    && rm /tmp/${archive} \
 # Add Containerpilot and set its configuration
-ENV CONTAINERPILOT_VER="3.6.2" CONTAINERPILOT="/etc/containerpilot.json5"
-
-RUN export CONTAINERPILOT_CHECKSUM=b799efda15b26d3bbf8fd745143a9f4c4df74da9 \
+    && export CONTAINERPILOT_CHECKSUM=b799efda15b26d3bbf8fd745143a9f4c4df74da9 \
     && curl -Lso /tmp/containerpilot.tar.gz \
          "https://github.com/joyent/containerpilot/releases/download/${CONTAINERPILOT_VER}/containerpilot-${CONTAINERPILOT_VER}.tar.gz" \
     && echo "${CONTAINERPILOT_CHECKSUM}  /tmp/containerpilot.tar.gz" | sha1sum -c \
     && tar zxf /tmp/containerpilot.tar.gz -C /usr/local/bin \
-    && rm /tmp/containerpilot.tar.gz
-
+    && rm /tmp/containerpilot.tar.gz \
 # Add Prometheus exporter
-RUN curl --fail -sL https://github.com/prometheus/consul_exporter/releases/download/v0.3.0/consul_exporter-0.3.0.linux-amd64.tar.gz |\
-    tar -xzO -f - consul_exporter-0.3.0.linux-amd64/consul_exporter > /usr/local/bin/consul_exporter &&\
-    chmod +x /usr/local/bin/consul_exporter
-
-RUN curl --fail -sL https://github.com/prometheus/node_exporter/releases/download/v0.15.2/node_exporter-0.15.2.linux-amd64.tar.gz |\
-    tar -xzO -f - node_exporter-0.15.2.linux-amd64/node_exporter > /usr/local/bin/node_exporter &&\
-    chmod +x /usr/local/bin/node_exporter
+    && curl --fail -sL https://github.com/prometheus/consul_exporter/releases/download/v0.3.0/consul_exporter-0.3.0.linux-amd64.tar.gz |\
+    tar -xzO -f - consul_exporter-0.3.0.linux-amd64/consul_exporter > /usr/local/bin/consul_exporter \
+    && chmod +x /usr/local/bin/consul_exporter \
+    && curl --fail -sL https://github.com/prometheus/node_exporter/releases/download/v0.15.2/node_exporter-0.15.2.linux-amd64.tar.gz |\
+    tar -xzO -f - node_exporter-0.15.2.linux-amd64/node_exporter > /usr/local/bin/node_exporter \
+    && chmod +x /usr/local/bin/node_exporter
 
 # configuration files and bootstrap scripts
 COPY etc/containerpilot.json5 /etc/
@@ -52,9 +44,6 @@ VOLUME ["/data"]
 # leave this here then we get the ports as well-known environment variables
 # for purposes of linking.
 EXPOSE 8300 8301 8301/udp 8302 8302/udp 8400 8500 53 53/udp
-
-#ENV GOMAXPROCS 2
-ENV SHELL /bin/bash
 
 CMD ["/usr/local/bin/containerpilot"]
 

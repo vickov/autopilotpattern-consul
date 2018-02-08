@@ -24,6 +24,7 @@ function retry {
 
 function finish {
   docker-compose -p consultest -f hooks/docker-compose.yml logs
+  docker-compose -p consultest -f hooks/docker-compose.yml exec consul consul members
   docker-compose -p consultest -f hooks/docker-compose.yml down
 }
 trap finish EXIT
@@ -32,22 +33,34 @@ function passing_service {
   docker run --rm --network container:consultest_consul_1 appropriate/curl -s http://localhost:8500/v1/health/state/passing | grep -q "ServiceName.*$1"
 }
 
+function until_started {
+  while docker-compose -p consultest -f hooks/docker-compose.yml ps -q | xargs docker inspect | ${JQ} -r .[].State.Health.Status | grep -q starting; do
+    echo "Waiting for services to start ..."
+    sleep 15s
+  done
+}
+
+function test_suite {
+  retry 30 docker exec consultest_consul_1 curl -s --fail http://localhost:8500/v1/health/state/passing
+  retry 30 docker exec consultest_consul_2 curl -s --fail http://localhost:8500/v1/health/state/passing
+  retry 30 docker exec consultest_consul_3 curl -s --fail http://localhost:8500/v1/health/state/passing
+
+  retry 15 passing_service consul
+
+  retry 5 docker run --rm --network container:consultest_consul_1 appropriate/curl -s -o /dev/null http://localhost:9090/metrics
+  retry 5 passing_service containerpilot
+
+  retry 5 docker run --rm --network container:consultest_consul_1 appropriate/curl -s -o /dev/null http://localhost:9100/metrics
+  retry 5 passing_service node-exporter
+}
+
 export IMAGE_NAME
 docker-compose -p consultest -f hooks/docker-compose.yml up -d --scale consul=3
-while docker-compose -p consultest -f hooks/docker-compose.yml ps -q | xargs docker inspect | ${JQ} -r .[].State.Health.Status | grep -q starting; do
-  echo "Waiting for services to start ..."
-  sleep 15s
-done
+until_started
 
-retry 30 docker exec consultest_consul_1 curl -s --fail http://localhost:8500/v1/health/state/passing
-retry 30 docker exec consultest_consul_2 curl -s --fail http://localhost:8500/v1/health/state/passing
-retry 30 docker exec consultest_consul_3 curl -s --fail http://localhost:8500/v1/health/state/passing
+test_suite
 
-retry 15 passing_service consul
+docker-compose -p consultest -f hooks/docker-compose.yml ps -q | xargs docker restart
+until_started
 
-retry 5 docker run --rm --network container:consultest_consul_1 appropriate/curl -s -o /dev/null http://localhost:9090/metrics
-retry 5 passing_service containerpilot
-
-retry 5 docker run --rm --network container:consultest_consul_1 appropriate/curl -s -o /dev/null http://localhost:9100/metrics
-retry 5 passing_service node-exporter
-
+test_suite
