@@ -24,7 +24,7 @@ function retry {
 
 function finish {
   docker-compose -p consultest -f hooks/docker-compose.yml logs
-  docker-compose -p consultest -f hooks/docker-compose.yml exec consul consul members
+  docker-compose -p consultest -f hooks/docker-compose.yml exec consul consul members || true
   docker-compose -p consultest -f hooks/docker-compose.yml down
 }
 trap finish EXIT
