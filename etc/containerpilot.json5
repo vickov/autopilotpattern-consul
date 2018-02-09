@@ -38,8 +38,8 @@
         },
         health: {
           exec: ["/usr/bin/curl", "--fail", "-s", "-o", "/dev/null", "http://localhost:9090/metrics"],
-          interval: 5,
-          ttl: 15,
+          interval: 30,
+          ttl: 60,
         },
     },
     {
@@ -48,8 +48,8 @@
         exec: ["/usr/local/bin/node_exporter","--web.listen-address=:9100"],
         health: {
           exec: ["/usr/bin/curl", "--fail", "-s", "-o", "/dev/null", "http://localhost:9100/metrics"],
-          interval: 5,
-          ttl: 15,
+          interval: 60,
+          ttl: 90,
         },
     },
     {
