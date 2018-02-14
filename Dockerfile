@@ -1,13 +1,13 @@
 FROM alpine:3.7
 
-ENV CONSUL_VERSION="1.0.5" \
+ENV CONSUL_VERSION="1.0.6" \
     CONTAINERPILOT_VER="3.6.2" CONTAINERPILOT="/etc/containerpilot.json5" \
     SHELL="/bin/bash"
 
 # Alpine packages
 RUN apk --no-cache add curl bash ca-certificates jq \
 # The Consul binary
-    && export CONSUL_CHECKSUM=0c6db793e49566f839249c5fb58a2262fb79d16a01bc5d41d78c89982760d71f \
+    && export CONSUL_CHECKSUM=bcc504f658cef2944d1cd703eda90045e084a15752d23c038400cf98c716ea01 \
     && export archive=consul_${CONSUL_VERSION}_linux_amd64.zip \
     && curl -Lso /tmp/${archive} https://releases.hashicorp.com/consul/${CONSUL_VERSION}/${archive} \
     && echo "${CONSUL_CHECKSUM}  /tmp/${archive}" | sha256sum -c \
@@ -49,7 +49,8 @@ CMD ["/usr/local/bin/containerpilot"]
 
 HEALTHCHECK --interval=60s --timeout=10s --retries=3 CMD curl -f http://127.0.0.1:8500/ || exit 1
 
-LABEL org.label-schema.build-date=$BUILD_DATE \
+LABEL maintainer="Patrick Double <pat@patdouble.com>" \
+      org.label-schema.build-date=$BUILD_DATE \
       org.label-schema.license="MPL-2.0" \
       org.label-schema.vendor="https://bitbucket.org/double16" \
       org.label-schema.name="Consul ${CONSUL_VERSION} with the Autopilot Pattern and Prometheus Monitoring" \

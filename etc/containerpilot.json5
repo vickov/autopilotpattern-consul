@@ -10,12 +10,10 @@
       port: 8500,
       {{ if .CONSUL_DEV }}exec: [
         "/bin/consul", "agent", "-server",
-        "-bootstrap-expect", "1",
         "-config-dir=/etc/consul"],
       {{ else }}exec: [
         "/bin/consul", "agent",
         "-server",
-        "-bootstrap-expect", "3",
         "-config-dir=/etc/consul",
         "-ui"],{{ end }}
       when: {

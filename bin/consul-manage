@@ -13,6 +13,16 @@ preStart() {
     sed -i "s/CONTAINERPILOT_CONSUL_IP/${CONTAINERPILOT_CONSUL_IP}/" /etc/consul/consul.hcl
 
     CONSUL_NODE_ID="$(cat /etc/consul/node-id)"
+
+    if [ -n "${CONSUL_DEV}" ]; then
+        _log "Setting bootstrap_expect to 1"
+        echo "bootstrap_expect = 1" >> /etc/consul/consul.hcl
+    elif [ ! -d "/data/${CONSUL_NODE_ID}/raft" ]; then
+        # Assuming this is the first run, we need to bootstrap the cluster
+        _log "Setting bootstrap_expect to 3"
+        echo "bootstrap_expect = 3" >> /etc/consul/consul.hcl
+    fi
+
     if [ -n "${CONSUL_NODE_ID}" ]; then
         _log "Updating consul node-id to ${CONSUL_NODE_ID}"
         sed -i "s/CONSUL_NODE_ID/${CONSUL_NODE_ID}/" /etc/consul/consul.hcl
