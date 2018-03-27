@@ -25,7 +25,7 @@ function retry {
 function finish {
   RESULT=$?
   docker-compose -p consultest -f hooks/docker-compose.yml logs
-  docker-compose -p consultest -f hooks/docker-compose.yml exec consul consul members || true
+  docker-compose -p consultest -f hooks/docker-compose.yml exec -T consul consul members || true
   docker-compose -p consultest -f hooks/docker-compose.yml down
   [ $RESULT = 0 ] && echo "PASS" || echo "FAIL"
 }
