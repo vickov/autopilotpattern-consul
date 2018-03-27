@@ -24,31 +24,43 @@
         exec: ["/usr/local/bin/consul-manage", "health"],
         interval: 10,
         ttl: 25
-      }
+      },
+      interfaces: [
+        "{{ .ADVERTISE_CIDR | default "inet" }}",
+        "{{ .ADVERTISE_CIDR6 | default "inet6" }}",
+      ],
     },
     {
-        name: "containerpilot",
-        port: 9090,
-        exec: ["/usr/local/bin/consul_exporter","-consul.server=127.0.0.1:8500","-web.listen-address=:9090","-consul.timeout=500ms"],
-        when: {
-          source: "consul",
-          once: "healthy",
-        },
-        health: {
-          exec: ["/usr/bin/curl", "--fail", "-s", "-o", "/dev/null", "http://localhost:9090/metrics"],
-          interval: 30,
-          ttl: 60,
-        },
+      name: "containerpilot",
+      port: 9090,
+      exec: ["/usr/local/bin/consul_exporter","-consul.server=127.0.0.1:8500","-web.listen-address=:9090","-consul.timeout=500ms"],
+      when: {
+        source: "consul",
+        once: "healthy",
+      },
+      health: {
+        exec: ["/usr/bin/curl", "--fail", "-s", "-o", "/dev/null", "http://localhost:9090/metrics"],
+        interval: 30,
+        ttl: 60,
+      },
+      interfaces: [
+        "{{ .ADVERTISE_CIDR | default "inet" }}",
+        "{{ .ADVERTISE_CIDR6 | default "inet6" }}",
+      ],
     },
     {
-        name: "node-exporter",
-        port: 9100,
-        exec: ["/usr/local/bin/node_exporter","--web.listen-address=:9100"],
-        health: {
-          exec: ["/usr/bin/curl", "--fail", "-s", "-o", "/dev/null", "http://localhost:9100/metrics"],
-          interval: 60,
-          ttl: 90,
-        },
+      name: "node-exporter",
+      port: 9100,
+      exec: ["/usr/local/bin/node_exporter","--web.listen-address=:9100"],
+      health: {
+        exec: ["/usr/bin/curl", "--fail", "-s", "-o", "/dev/null", "http://localhost:9100/metrics"],
+        interval: 60,
+        ttl: 90,
+      },
+      interfaces: [
+        "{{ .ADVERTISE_CIDR | default "inet" }}",
+        "{{ .ADVERTISE_CIDR6 | default "inet6" }}",
+      ],
     },
     {
       name: "preStop",

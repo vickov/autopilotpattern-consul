@@ -95,6 +95,8 @@ In our experience, including a Consul cluster within a project's `docker-compose
     - If this variable is specified it will be used as-is.
     - If not specified, automatic detection of the datacenter will be attempted. See [issue #23](https://github.com/autopilotpattern/consul/issues/23) for more details.
     - Consul's default of "dc1" will be used if none of the above apply.
+  - `ADVERTISE_CIDR`: The IPv4 CIDR block preferred for the advertise IP (Optional)
+  - `ADVERTISE_CIDR6`: The IPv6 CIDR block preferred for the advertise IP (Optional)
 
 ### Clients
 

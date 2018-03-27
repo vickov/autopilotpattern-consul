@@ -1,7 +1,7 @@
 FROM alpine:3.7
 
 ENV CONSUL_VERSION="1.0.6" \
-    CONTAINERPILOT_VER="3.6.2" CONTAINERPILOT="/etc/containerpilot.json5" \
+    CONTAINERPILOT_VER="3.7.0" CONTAINERPILOT="/etc/containerpilot.json5" \
     SHELL="/bin/bash"
 
 # Alpine packages
@@ -16,7 +16,7 @@ RUN apk --no-cache add curl bash ca-certificates jq \
     && chmod +x /bin/consul \
     && rm /tmp/${archive} \
 # Add Containerpilot and set its configuration
-    && export CONTAINERPILOT_CHECKSUM=b799efda15b26d3bbf8fd745143a9f4c4df74da9 \
+    && export CONTAINERPILOT_CHECKSUM=b10b30851de1ae1c095d5f253d12ce8fe8e7be17 \
     && curl -Lso /tmp/containerpilot.tar.gz \
          "https://github.com/joyent/containerpilot/releases/download/${CONTAINERPILOT_VER}/containerpilot-${CONTAINERPILOT_VER}.tar.gz" \
     && echo "${CONTAINERPILOT_CHECKSUM}  /tmp/containerpilot.tar.gz" | sha1sum -c \
@@ -56,6 +56,6 @@ LABEL maintainer="Patrick Double <pat@patdouble.com>" \
       org.label-schema.name="Consul ${CONSUL_VERSION} with the Autopilot Pattern and Prometheus Monitoring" \
       org.label-schema.url="https://bitbucket.org/double16/autopilotpattern-consul" \
       org.label-schema.docker.dockerfile="Dockerfile" \
-      org.label-schema.vcs-ref=$SOURCE_REF \
+      org.label-schema.vcs-ref=$SOURCE_COMMIT \
       org.label-schema.vcs-type='git' \
       org.label-schema.vcs-url="https://bitbucket.org/double16/autopilotpattern-consul.git"
