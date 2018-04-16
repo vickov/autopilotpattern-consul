@@ -1,13 +1,18 @@
 FROM alpine:3.7
 
-ENV CONSUL_VERSION="1.0.6" \
+ARG BUILD_DATE
+ARG SOURCE_COMMIT
+ARG DOCKERFILE_PATH
+ARG SOURCE_TYPE
+
+ENV CONSUL_VERSION="1.0.7" \
     CONTAINERPILOT_VER="3.7.0" CONTAINERPILOT="/etc/containerpilot.json5" \
     SHELL="/bin/bash"
 
 # Alpine packages
 RUN apk --no-cache add curl bash ca-certificates jq \
 # The Consul binary
-    && export CONSUL_CHECKSUM=bcc504f658cef2944d1cd703eda90045e084a15752d23c038400cf98c716ea01 \
+    && export CONSUL_CHECKSUM=6c2c8f6f5f91dcff845f1b2ce8a29bd230c11397c448ce85aae6dacd68aa4c14 \
     && export archive=consul_${CONSUL_VERSION}_linux_amd64.zip \
     && curl -Lso /tmp/${archive} https://releases.hashicorp.com/consul/${CONSUL_VERSION}/${archive} \
     && echo "${CONSUL_CHECKSUM}  /tmp/${archive}" | sha256sum -c \
@@ -55,7 +60,7 @@ LABEL maintainer="Patrick Double <pat@patdouble.com>" \
       org.label-schema.vendor="https://bitbucket.org/double16" \
       org.label-schema.name="Consul ${CONSUL_VERSION} with the Autopilot Pattern and Prometheus Monitoring" \
       org.label-schema.url="https://bitbucket.org/double16/autopilotpattern-consul" \
-      org.label-schema.docker.dockerfile="Dockerfile" \
+      org.label-schema.docker.dockerfile="${DOCKERFILE_PATH}/Dockerfile" \
       org.label-schema.vcs-ref=$SOURCE_COMMIT \
-      org.label-schema.vcs-type='git' \
+      org.label-schema.vcs-type=$SOURCE_TYPE \
       org.label-schema.vcs-url="https://bitbucket.org/double16/autopilotpattern-consul.git"
