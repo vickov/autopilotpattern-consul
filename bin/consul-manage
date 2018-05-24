@@ -12,6 +12,10 @@ preStart() {
     _log "Updating consul advertise address to ${CONTAINERPILOT_CONSUL_IP}"
     sed -i "s/CONTAINERPILOT_CONSUL_IP/${CONTAINERPILOT_CONSUL_IP}/" /etc/consul/consul.hcl
 
+    CONSUL_DNS="$(grep ^nameserver /etc/resolv.conf | grep -oE '[0-9\.]+' | sed -e 's/^/"/' -e 's/$/"/' | tr [:space:] ,)\"8.8.8.8\",\"8.8.4.4\""
+    _log "Updating consul DNS to ${CONSUL_DNS}"
+    sed -i "s/CONSUL_DNS/${CONSUL_DNS}/" /etc/consul/consul.hcl
+
     CONSUL_NODE_ID="$(cat /etc/consul/node-id)"
 
     if [ -n "${CONSUL_DEV}" ]; then
