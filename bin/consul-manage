@@ -56,6 +56,12 @@ preStart() {
         _log "Updating consul datacenter name (default: 'dc1')"
         sed -i "s/CONSUL_DATACENTER_NAME/dc1/" /etc/consul/consul.hcl
     fi
+
+    # Ensure local hostname is set to target IP address, this may not be present, for example, on AWS Fargate
+    if ! grep -q $(hostname) /etc/hosts; then
+        _log "Adding missing local hostname $(hostname) to /etc/hosts pointing to ${CONTAINERPILOT_CONSUL_IP}"
+        echo "${CONTAINERPILOT_CONSUL_IP} $(hostname)" >> /etc/hosts
+    fi
 }
 
 #

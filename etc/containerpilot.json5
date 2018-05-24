@@ -1,5 +1,9 @@
 {
   consul: "127.0.0.1:8500",
+  logging: {
+    level: "{{ .LOG_LEVEL | default "INFO" }}",
+    format: "{{ .LOG_FORMAT | default "default" }}",
+  },
   jobs: [
     {
       name: "preStart",
