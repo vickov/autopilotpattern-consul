@@ -24,6 +24,7 @@
         source: "preStart",
         once: "exitSuccess"
       },
+      initial_status: "warning",
       health:{
         exec: ["/usr/local/bin/consul-manage", "health"],
         interval: 10,

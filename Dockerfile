@@ -5,14 +5,14 @@ ARG SOURCE_COMMIT
 ARG DOCKERFILE_PATH
 ARG SOURCE_TYPE
 
-ENV CONSUL_VERSION="1.0.7" \
-    CONTAINERPILOT_VER="3.7.0" CONTAINERPILOT="/etc/containerpilot.json5" \
+ENV CONSUL_VERSION="1.1.0" \
+    CONTAINERPILOT_VER="3.8.0" CONTAINERPILOT="/etc/containerpilot.json5" \
     SHELL="/bin/bash"
 
 # Alpine packages
 RUN apk --no-cache add curl bash ca-certificates jq \
 # The Consul binary
-    && export CONSUL_CHECKSUM=6c2c8f6f5f91dcff845f1b2ce8a29bd230c11397c448ce85aae6dacd68aa4c14 \
+    && export CONSUL_CHECKSUM=09c40c8b5be868003810064916d8460bff334ccfb59a5046390224b27e052c45 \
     && export archive=consul_${CONSUL_VERSION}_linux_amd64.zip \
     && curl -Lso /tmp/${archive} https://releases.hashicorp.com/consul/${CONSUL_VERSION}/${archive} \
     && echo "${CONSUL_CHECKSUM}  /tmp/${archive}" | sha256sum -c \
@@ -21,7 +21,7 @@ RUN apk --no-cache add curl bash ca-certificates jq \
     && chmod +x /bin/consul \
     && rm /tmp/${archive} \
 # Add Containerpilot and set its configuration
-    && export CONTAINERPILOT_CHECKSUM=b10b30851de1ae1c095d5f253d12ce8fe8e7be17 \
+    && export CONTAINERPILOT_CHECKSUM=84642c13683ddae6ccb63386e6160e8cb2439c26 \
     && curl -Lso /tmp/containerpilot.tar.gz \
          "https://github.com/joyent/containerpilot/releases/download/${CONTAINERPILOT_VER}/containerpilot-${CONTAINERPILOT_VER}.tar.gz" \
     && echo "${CONTAINERPILOT_CHECKSUM}  /tmp/containerpilot.tar.gz" | sha1sum -c \
