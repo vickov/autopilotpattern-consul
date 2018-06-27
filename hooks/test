@@ -53,6 +53,8 @@ function test_suite {
     echo
   done
 
+  retry 5 docker run --rm --network container:consultest_consul_1 appropriate/curl -sf -o /dev/null http://localhost:8500/ui/
+
   retry 15 passing_service consul
 
   retry 5 docker run --rm --network container:consultest_consul_1 appropriate/curl -sf -o /dev/null http://localhost:9090/metrics

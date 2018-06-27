@@ -1,18 +1,17 @@
 FROM alpine:3.7
 
-ARG BUILD_DATE
 ARG SOURCE_COMMIT
 ARG DOCKERFILE_PATH
 ARG SOURCE_TYPE
 
-ENV CONSUL_VERSION="1.1.0" \
+ENV CONSUL_VERSION="1.2.0" \
     CONTAINERPILOT_VER="3.8.0" CONTAINERPILOT="/etc/containerpilot.json5" \
     SHELL="/bin/bash"
 
 # Alpine packages
 RUN apk --no-cache add curl bash ca-certificates jq \
 # The Consul binary
-    && export CONSUL_CHECKSUM=09c40c8b5be868003810064916d8460bff334ccfb59a5046390224b27e052c45 \
+    && export CONSUL_CHECKSUM=85d84ea3f6c68d52549a29b00fd0035f72c2eabff672ae46ca643cb407ef94b4 \
     && export archive=consul_${CONSUL_VERSION}_linux_amd64.zip \
     && curl -Lso /tmp/${archive} https://releases.hashicorp.com/consul/${CONSUL_VERSION}/${archive} \
     && echo "${CONSUL_CHECKSUM}  /tmp/${archive}" | sha256sum -c \
@@ -31,8 +30,8 @@ RUN apk --no-cache add curl bash ca-certificates jq \
     && curl --fail -sL https://github.com/prometheus/consul_exporter/releases/download/v0.3.0/consul_exporter-0.3.0.linux-amd64.tar.gz |\
     tar -xzO -f - consul_exporter-0.3.0.linux-amd64/consul_exporter > /usr/local/bin/consul_exporter \
     && chmod +x /usr/local/bin/consul_exporter \
-    && curl --fail -sL https://github.com/prometheus/node_exporter/releases/download/v0.15.2/node_exporter-0.15.2.linux-amd64.tar.gz |\
-    tar -xzO -f - node_exporter-0.15.2.linux-amd64/node_exporter > /usr/local/bin/node_exporter \
+    && curl --fail -sL https://github.com/prometheus/node_exporter/releases/download/v0.16.0/node_exporter-0.16.0.linux-amd64.tar.gz |\
+    tar -xzO -f - node_exporter-0.16.0.linux-amd64/node_exporter > /usr/local/bin/node_exporter \
     && chmod +x /usr/local/bin/node_exporter
 
 # configuration files and bootstrap scripts
@@ -55,7 +54,6 @@ CMD ["/usr/local/bin/containerpilot"]
 HEALTHCHECK --interval=60s --timeout=10s --retries=3 CMD curl -sf http://127.0.0.1:8500/v1/status/peers || exit 1
 
 LABEL maintainer="Patrick Double <pat@patdouble.com>" \
-      org.label-schema.build-date=$BUILD_DATE \
       org.label-schema.license="MPL-2.0" \
       org.label-schema.vendor="https://bitbucket.org/double16" \
       org.label-schema.name="Consul ${CONSUL_VERSION} with the Autopilot Pattern and Prometheus Monitoring" \
