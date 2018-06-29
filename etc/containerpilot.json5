@@ -12,14 +12,11 @@
     {
       name: "consul",
       port: 8500,
-      {{ if .CONSUL_DEV }}exec: [
-        "/bin/consul", "agent", "-server",
-        "-config-dir=/etc/consul"],
-      {{ else }}exec: [
+      exec: [
         "/bin/consul", "agent",
         "-server",
         "-config-dir=/etc/consul",
-        "-ui"],{{ end }}
+        "-ui"],
       when: {
         source: "preStart",
         once: "exitSuccess"

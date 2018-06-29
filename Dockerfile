@@ -4,8 +4,11 @@ ARG SOURCE_COMMIT
 ARG DOCKERFILE_PATH
 ARG SOURCE_TYPE
 
-ENV CONSUL_VERSION="1.2.0" \
+ENV CONSUL="consul" \
+    CONSUL_VERSION="1.2.0" \
     CONTAINERPILOT_VER="3.8.0" CONTAINERPILOT="/etc/containerpilot.json5" \
+    NODE_EXPORTER_VERSION="0.16.0" \
+    CONSUL_EXPORTER_VERSION="0.3.0" \
     SHELL="/bin/bash"
 
 # Alpine packages
@@ -27,11 +30,11 @@ RUN apk --no-cache add curl bash ca-certificates jq \
     && tar zxf /tmp/containerpilot.tar.gz -C /usr/local/bin \
     && rm /tmp/containerpilot.tar.gz \
 # Add Prometheus exporter
-    && curl --fail -sL https://github.com/prometheus/consul_exporter/releases/download/v0.3.0/consul_exporter-0.3.0.linux-amd64.tar.gz |\
-    tar -xzO -f - consul_exporter-0.3.0.linux-amd64/consul_exporter > /usr/local/bin/consul_exporter \
+    && curl --fail -sL https://github.com/prometheus/consul_exporter/releases/download/v${CONSUL_EXPORTER_VERSION}/consul_exporter-${CONSUL_EXPORTER_VERSION}.linux-amd64.tar.gz |\
+    tar -xzO -f - consul_exporter-${CONSUL_EXPORTER_VERSION}.linux-amd64/consul_exporter > /usr/local/bin/consul_exporter \
     && chmod +x /usr/local/bin/consul_exporter \
-    && curl --fail -sL https://github.com/prometheus/node_exporter/releases/download/v0.16.0/node_exporter-0.16.0.linux-amd64.tar.gz |\
-    tar -xzO -f - node_exporter-0.16.0.linux-amd64/node_exporter > /usr/local/bin/node_exporter \
+    && curl --fail -sL https://github.com/prometheus/node_exporter/releases/download/v${NODE_EXPORTER_VERSION}/node_exporter-${NODE_EXPORTER_VERSION}.linux-amd64.tar.gz |\
+    tar -xzO -f - node_exporter-${NODE_EXPORTER_VERSION}.linux-amd64/node_exporter > /usr/local/bin/node_exporter \
     && chmod +x /usr/local/bin/node_exporter
 
 # configuration files and bootstrap scripts

@@ -78,7 +78,7 @@ preStart() {
 health() {
     if [ -z "${CONSUL_DEV}" -a $(consul info | awk '/num_peers/{print$3}') == 0 ]; then
         _log "No peers in raft"
-        DNS_COUNT="$(nslookup consul 2>/dev/null | grep 'Address ' | wc -l)"
+        DNS_COUNT="$(nslookup ${CONSUL} 2>/dev/null | grep 'Address ' | wc -l)"
         if [ ${DNS_COUNT} -lt 3 ]; then
             _log "Waiting for 3 peers to resolve, have ${DNS_COUNT}"
         else
