@@ -76,6 +76,7 @@ preStart() {
 # we've got the whole cluster together.
 #
 health() {
+    RESULT=0
     if [ -z "${CONSUL_DEV}" -a $(consul info | awk '/num_peers/{print$3}') == 0 ]; then
         _log "No peers in raft"
         DNS_COUNT="$(nslookup ${CONSUL} 2>/dev/null | grep 'Address ' | wc -l)"
@@ -83,8 +84,10 @@ health() {
             _log "Waiting for 3 peers to resolve, have ${DNS_COUNT}"
         else
             consul join ${CONSUL}
+            RESULT=$?
         fi
     fi
+    exit $RESULT
 }
 
 _log() {

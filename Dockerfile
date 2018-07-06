@@ -54,7 +54,7 @@ EXPOSE 8300 8301 8301/udp 8302 8302/udp 8400 8500 53 53/udp
 
 CMD ["/usr/local/bin/containerpilot"]
 
-HEALTHCHECK --interval=60s --timeout=10s --retries=3 CMD curl -sf http://127.0.0.1:8500/v1/status/peers || exit 1
+HEALTHCHECK --interval=60s --timeout=10s --retries=3 --start-period=15m CMD curl -sf http://127.0.0.1:8500/v1/status/peers || exit 1
 
 LABEL maintainer="Patrick Double <pat@patdouble.com>" \
       org.label-schema.license="MPL-2.0" \

@@ -16,5 +16,3 @@ services:
     env_file:
       - _env
     network_mode: bridge
-    command: >
-      /usr/local/bin/containerpilot
