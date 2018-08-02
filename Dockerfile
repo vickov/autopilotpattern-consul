@@ -1,11 +1,11 @@
-FROM alpine:3.7
+FROM alpine:3.8
 
 ARG SOURCE_COMMIT
 ARG DOCKERFILE_PATH
 ARG SOURCE_TYPE
 
 ENV CONSUL="consul" \
-    CONSUL_VERSION="1.2.1" \
+    CONSUL_VERSION="1.2.2" \
     CONTAINERPILOT_VER="3.8.0" CONTAINERPILOT="/etc/containerpilot.json5" \
     NODE_EXPORTER_VERSION="0.16.0" \
     CONSUL_EXPORTER_VERSION="0.3.0" \
@@ -14,7 +14,7 @@ ENV CONSUL="consul" \
 # Alpine packages
 RUN apk --no-cache add curl bash ca-certificates jq \
 # The Consul binary
-    && export CONSUL_CHECKSUM=e4146334be453146890023303da3e0c815669e108a18fb7d742745df3414a31a \
+    && export CONSUL_CHECKSUM=7fa3b287b22b58283b8bd5479291161af2badbc945709eb5412840d91b912060 \
     && export archive=consul_${CONSUL_VERSION}_linux_amd64.zip \
     && curl -Lso /tmp/${archive} https://releases.hashicorp.com/consul/${CONSUL_VERSION}/${archive} \
     && echo "${CONSUL_CHECKSUM}  /tmp/${archive}" | sha256sum -c \
