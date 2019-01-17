@@ -9,10 +9,13 @@ services:
   # env var) to find each other and bootstrap the cluster.
   consul:
     build: .
+    image: vickov/autopilotpattern-consul:latest
     restart: always
     mem_limit: 128m
+    network_mode: host
     ports:
         - 8500
     environment:
-      - CONSUL=consul
+      - CONSUL=10.0.0.45 10.0.0.46
       - CONSUL_DATACENTER_NAME=dc1
+      - CONSUL_IP=10.0.0.45

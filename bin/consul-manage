@@ -9,8 +9,8 @@ preStart() {
     [ -s /etc/consul/node-id ] || cat /proc/sys/kernel/random/uuid > /etc/consul/node-id
     cp -f /etc/consul/consul.hcl.orig /etc/consul/consul.hcl
 
-    _log "Updating consul advertise address to ${CONTAINERPILOT_CONSUL_IP}"
-    sed -i "s/CONTAINERPILOT_CONSUL_IP/${CONTAINERPILOT_CONSUL_IP}/" /etc/consul/consul.hcl
+    _log "Updating consul advertise address to ${CONSUL_IP}"
+    sed -i "s/CONSUL_IP/${CONSUL_IP}/" /etc/consul/consul.hcl
 
     [ -n "${CONSUL_DNS}" ] || CONSUL_DNS="$(grep ^nameserver /etc/resolv.conf | grep -oE '[0-9\.]+' | tr [:space:] ,)8.8.8.8,8.8.4.4"
     _log "Updating consul DNS to ${CONSUL_DNS}"
@@ -23,8 +23,8 @@ preStart() {
         echo "bootstrap_expect = 1" >> /etc/consul/consul.hcl
     elif [ ! -d "/data/${CONSUL_NODE_ID}/raft" ]; then
         # Assuming this is the first run, we need to bootstrap the cluster
-        _log "Setting bootstrap_expect to 3"
-        echo "bootstrap_expect = 3" >> /etc/consul/consul.hcl
+        _log "Setting bootstrap_expect to 2"
+        echo "bootstrap_expect = 2" >> /etc/consul/consul.hcl
     fi
 
     if [ -n "${CONSUL_NODE_ID}" ]; then
